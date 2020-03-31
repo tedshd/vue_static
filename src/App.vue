@@ -15,9 +15,26 @@
 <script>
 export default {
   name: 'app',
+  metaInfo: {
+    title: 'My Example App', // set a title
+    meta: [
+      {                 // set meta
+        name: 'keyWords',
+        content: 'My Example App'
+      },
+      {
+        name: 'description',
+        content: 'this is desc'
+      }
+    ],
+    link: [{                 // set link
+      rel: 'asstes',
+      href: 'https://assets-cdn.github.com/'
+    }]
+  },
   data () {
     return {
-      msg: 'Welcome to your prerender-spa-plugin Vuejs 2.0 demo app!'
+      msg: 'Welcome to your prerender-spa-plugin Vuejs 2.0 demo!'
     }
   }
 }
