@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App.vue'
+import i18n from './i18n'
 
 Vue.use(VueRouter)
 
@@ -23,6 +24,7 @@ new Vue({
   el: '#app',
   router,
   render: h => h(App),
+  i18n,
   mounted () {
     // You'll need this for renderAfterDocumentEvent.
     document.dispatchEvent(new Event('render-event'))

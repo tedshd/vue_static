@@ -2,6 +2,7 @@
   <div id="app">
     <img src="./assets/logo.png">
     <h1>{{ msg }}</h1>
+    <h2>{{ $t('message') }}</h2>
     <p>
       <router-link to="/">Home</router-link>
       <router-link to="/about">About</router-link>
