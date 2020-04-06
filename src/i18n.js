@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
+import store from './store'
 
 Vue.use(VueI18n)
 
@@ -56,41 +57,9 @@ function getQueryString (name) {
   return results == null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
 }
 
-var langList = {
-  ar: 'العربية',
-  bg: 'български език',
-  cs: 'čeština',
-  de: 'Deutsch',
-  el: 'ελληνικά',
-  en: 'English',
-  es: 'Español',
-  fa: 'فارسی',
-  fr: 'français',
-  he: 'עברית',
-  hi: 'हिन्दी',
-  hu: 'magyar',
-  id: 'Bahasa Indonesia',
-  it: 'Italiano',
-  ja: '日本語',
-  ko: '한국어',
-  ms: 'Bahasa Melayu',
-  nl: 'Nederlands',
-  no: 'Norsk',
-  pl: 'język polski',
-  pt: 'Português',
-  ro: 'Română',
-  ru: 'русский',
-  sr: 'српски језик',
-  sv: 'Svenska',
-  th: 'ไทย',
-  tr: 'Türkçe',
-  vi: 'Tiếng Việt',
-  'zh-CN': '简体中文',
-  'zh-TW': '繁體中文'
-}
 const langString = getQueryString('hl')
 
-if (!langList[langString]) {
+if (!store.state.langList[langString]) {
   let langD4 = 'en'
   let lang = navigator.language
   if (lang === 'zh-TW' ||
@@ -98,7 +67,7 @@ if (!langList[langString]) {
     langD4 = lang
   } else {
     lang = lang.split('-')[0]
-    if (langList[lang]) {
+    if (store.state.langList[lang]) {
       langD4 = lang
     }
   }

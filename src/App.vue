@@ -13,6 +13,33 @@
 </template>
 
 <script>
+
+import store from './store'
+
+var tmpLinks = []
+
+function hreflangInit() {
+  var tmpArray = []
+  var xDefault = {
+    'rel': 'alternate',
+    'hreflang': 'x-default',
+    'href': ''
+  }
+  tmpArray.push(xDefault)
+  for (let x in store.state.langList) {
+    var tmpObj = {
+      'rel': 'alternate',
+      'hreflang': x,
+      'href': ''
+    }
+    tmpArray.push(tmpObj)
+  }
+  console.log('tmpArray', tmpArray)
+  return tmpArray
+}
+
+var links = tmpLinks.concat(hreflangInit())
+
 export default {
   name: 'app',
   metaInfo: {
@@ -27,12 +54,10 @@ export default {
         content: 'this is desc'
       }
     ],
-    link: [{                 // set link
-      rel: 'asstes',
-      href: 'https://assets-cdn.github.com/'
-    }]
+    link: links
   },
   data () {
+  console.log(store.state);
     return {
       msg: 'Welcome to your prerender-spa-plugin Vuejs 2.0 demo!'
     }
