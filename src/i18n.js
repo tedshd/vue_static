@@ -88,9 +88,9 @@ var langList = {
   'zh-CN': '简体中文',
   'zh-TW': '繁體中文'
 }
-const langstring = getQueryString('hl')
+const langString = getQueryString('hl')
 
-if (!langList[langstring]) {
+if (!langList[langString]) {
   let langD4 = 'en'
   let lang = navigator.language
   if (lang === 'zh-TW' ||
@@ -107,10 +107,14 @@ if (!langList[langstring]) {
   })
 }
 
-Vue.config.lang = langstring
+if (window['__PRERENDER_INJECTED__'] && window['__PRERENDER_INJECTED__'].lang) {
+  Vue.config.lang = window['__PRERENDER_INJECTED__'].lang
+} else {
+  Vue.config.lang = langString
+}
 
 const html = document.documentElement // returns the html tag
-html.setAttribute('lang', langstring)
+html.setAttribute('lang', Vue.config.lang)
 
 export default new VueI18n({
   locale: Vue.config.lang || 'en',
