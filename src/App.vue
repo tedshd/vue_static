@@ -4,9 +4,9 @@
     <h1>{{ msg }}</h1>
     <h2>{{ $t('message') }}</h2>
     <p>
-      <router-link to="/">Home</router-link>
-      <router-link to="/about">About</router-link>
-      <router-link to="/contact">Contact</router-link>
+      <router-link :to="{path: '/' + lang }">Home</router-link>
+      <router-link :to="{path: '/about/' + lang }">About</router-link>
+      <router-link :to="{path: '/contact/' + lang}" >Contact</router-link>
     </p>
     <router-view></router-view>
   </div>
@@ -59,7 +59,8 @@ export default {
   data () {
   console.log(store.state);
     return {
-      msg: 'Welcome to your prerender-spa-plugin Vuejs 2.0 demo!'
+      msg: 'Welcome to your prerender-spa-plugin Vuejs 2.0 demo!',
+      lang: this.$i18n.locale
     }
   }
 }
