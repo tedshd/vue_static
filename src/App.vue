@@ -4,9 +4,9 @@
     <h1>{{ msg }}</h1>
     <h2>{{ $t('message') }}</h2>
     <p>
-      <router-link :to="{path: '/' + lang }">Home</router-link>
-      <router-link :to="{path: '/about/' + lang }">About</router-link>
-      <router-link :to="{path: '/contact/' + lang}" >Contact</router-link>
+      <router-link :to="{path:  '/' + lang + '/' }">Home</router-link>
+      <router-link :to="{path: '/' + lang + '/about/' }">About</router-link>
+      <router-link :to="{path: '/' + lang + '/contact/'}" >Contact</router-link>
     </p>
     <router-view></router-view>
   </div>

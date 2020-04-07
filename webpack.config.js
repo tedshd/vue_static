@@ -4,27 +4,38 @@ var HtmlWebpackPlugin = require('html-webpack-plugin')
 const PrerenderSPAPlugin = require('prerender-spa-plugin')
 const Renderer = PrerenderSPAPlugin.PuppeteerRenderer
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const fs = require('fs')
 
-const langs = ['zh-TW', 'en']
-const routes = ['/', '/about', '/contact']
+let langs = []
+fs.readdirSync(path.join(__dirname, 'src/locales')).forEach(file => {
+  langs.push(file.replace('.json', ''))
+})
+
+const routes = ['/', '/about/', '/contact/']
 const langsPrerender = []
 for (let index = 0; index < langs.length; index++) {
   let lang = langs[index];
+  let langRoutes = Array.from(routes);
+  for (let x = 0; x < langRoutes.length; x++) {
+    langRoutes[x] = '/' + lang + langRoutes[x];
+  }
   langsPrerender.push(
 
     new PrerenderSPAPlugin({
       staticDir: path.join(__dirname, 'dist'),
-      routes: routes,
+      routes: langRoutes,
       postProcess (renderedRoute) {
-        // 若是首页就打包成相应的html文件
+        console.log('build router:', renderedRoute);
         if (renderedRoute.route === '/') {
-          const fileName = lang ? `${lang}.html` : `index.html`;
-          renderedRoute.outputPath = path.join(__dirname, 'dist', fileName);
+          // const fileName = lang ? `${lang}.html` : `index.html`;
+          let dir = 'dist'
+          renderedRoute.outputPath = path.join(__dirname, dir, 'index.html');
         } else {
-          const fileName = lang
-            ? `${renderedRoute.route}.${lang}.html`
-            : `${renderedRoute.route}.html`;
-          renderedRoute.outputPath = path.join(__dirname, 'dist', renderedRoute.route, fileName);
+          // const fileName = lang
+          //   ? `${renderedRoute.route}.${lang}.html`
+          //   : `${renderedRoute.route}.html`;
+          let dir = 'dist'
+          renderedRoute.outputPath = path.join(__dirname, dir, renderedRoute.route, 'index.html');
         }
 
         return renderedRoute;

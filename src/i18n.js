@@ -17,49 +17,10 @@ function loadLocaleMessages () {
   return messages
 }
 
-function urlUpdateQuery (url, query) {
-  let u = ''
-  let q = ''
-  const obj = {}
-  if (url) {
-    u = new URL(url)
-  } else {
-    u = location
-  }
-  if (!query) {
-    console.error('urlUpdateQuery: query is not set')
-    return
-  }
-  if (typeof query !== 'object') {
-    console.error('urlUpdateQuery: query is not object')
-    return
-  }
-  if (u.search) {
-    var qArray = u.search.slice(1).split('&')
-    for (var i = 0; i < qArray.length; i++) {
-      var tmp = qArray[i].split('=')
-      obj[tmp[0]] = tmp[1]
-    }
-  }
-  for (var x in query) {
-    obj[x] = query[x]
-  }
-  for (var y in obj) {
-    q = q + '&' + y + '=' + obj[y]
-  }
-  q = '?' + q.slice(1)
-  return u.protocol + '//' + u.host + u.pathname + q + u.hash
-}
-function getQueryString (name) {
-  name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]')
-  const regex = new RegExp('[\\?&]' + name + '=([^&#]*)')
-  const results = regex.exec(location.search)
-  return results == null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
-}
-
-const langString = getQueryString('hl')
+const langString = location.pathname.split('/')[1]
 
 if (!store.state.langList[langString]) {
+  console.log('no match')
   let langD4 = 'en'
   let lang = navigator.language
   if (lang === 'zh-TW' ||
@@ -71,9 +32,7 @@ if (!store.state.langList[langString]) {
       langD4 = lang
     }
   }
-  location.href = urlUpdateQuery(location, {
-    hl: langD4
-  })
+  location.href = '/' + langD4
 }
 
 if (window['__PRERENDER_INJECTED__'] && window['__PRERENDER_INJECTED__'].lang) {

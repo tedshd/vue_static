@@ -18,7 +18,7 @@ function urlHome () {
   var tmpArray = []
   for (let x in langList) {
     var tmpObj = {
-      path: '/' + x,
+      path: '/' + x + '/',
       name: 'home',
       component: Home
     }
@@ -31,7 +31,7 @@ function urlAbout () {
   var tmpArray = []
   for (let x in langList) {
     var tmpObj = {
-      path: '/about/' + x,
+      path: '/' + x + '/about/',
       name: 'about',
       component: About
     }
