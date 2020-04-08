@@ -1,0 +1,6 @@
+@import '_var.css';
+
+body {
+  background: pink;
+  background: var(--theme-color-dark);
+}

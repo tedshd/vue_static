@@ -67,7 +67,9 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        use: [
+          'vue-loader'
+        ]
       },
       {
         test: /\.js$/,
@@ -85,7 +87,20 @@ module.exports = {
         test: /\.css$/,
         use: [
           'vue-style-loader',
-          'css-loader'
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-import')(),
+                require('postcss-apply')(),
+                require('postcss-css-variables')()
+                // require('postcss-preset-env')(),
+                // require('cssnano')()
+              ]
+            }
+          }
         ]
       }
     ]

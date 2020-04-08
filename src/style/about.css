@@ -1,0 +1,11 @@
+@import '_reset.css';
+@import '_var.css';
+
+.about_bg {
+  background: yellow;
+  background: var(--theme-bg-dark);
+}
+
+.font {
+  font-style: italic;
+}
