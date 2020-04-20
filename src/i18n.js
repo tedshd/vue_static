@@ -17,23 +17,29 @@ function loadLocaleMessages () {
   return messages
 }
 
-const langString = location.pathname.split('/')[1]
+let langString = location.pathname.split('/')[1]
 
-if (!store.state.langList[langString]) {
-  console.log('no match')
-  let langD4 = 'en'
-  let lang = navigator.language
-  if (lang === 'zh-TW' ||
-    lang === 'zh-CN') {
-    langD4 = lang
-  } else {
-    lang = lang.split('-')[0]
+// TODO check logic
+if (store.state.langD4) {
+  langString = store.state.langD4
+} else {
+  if (!store.state.langList[langString]) {
+    let langD4 = store.state.langD4
+    let lang = navigator.language
+    if (lang === 'zh-TW' ||
+      lang === 'zh-CN') {
+      langD4 = lang
+    } else {
+      lang = lang.split('-')[0]
+    }
     if (store.state.langList[lang]) {
       langD4 = lang
+      location.href = '/' + langD4
     }
   }
-  location.href = '/' + langD4
 }
+
+
 
 if (window['__PRERENDER_INJECTED__'] && window['__PRERENDER_INJECTED__'].lang) {
   Vue.config.lang = window['__PRERENDER_INJECTED__'].lang
@@ -45,7 +51,7 @@ const html = document.documentElement // returns the html tag
 html.setAttribute('lang', Vue.config.lang)
 
 export default new VueI18n({
-  locale: Vue.config.lang || 'en',
-  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  locale: Vue.config.lang,
+  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE,
   messages: loadLocaleMessages()
 })

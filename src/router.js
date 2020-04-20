@@ -6,7 +6,6 @@ import Home from './views/Home.vue'
 import About from './views/About.vue'
 
 Vue.use(Router)
-console.log(process.env.BASE_URL);
 
 var routesArray = [];
 
@@ -16,26 +15,44 @@ console.log(langList);
 
 function urlHome () {
   var tmpArray = []
-  for (let x in langList) {
+  if (!Object.keys(langList).length) {
     var tmpObj = {
-      path: '/' + x + '/',
+      path: '/',
       name: 'home',
       component: Home
     }
     tmpArray.push(tmpObj)
+  } else {
+    for (let x in langList) {
+      var tmpObj = {
+        path: '/' + x + '/',
+        name: 'home',
+        component: Home
+      }
+      tmpArray.push(tmpObj)
+    }
   }
   return tmpArray;
 }
 
 function urlAbout () {
   var tmpArray = []
-  for (let x in langList) {
+  if (!Object.keys(langList).length) {
     var tmpObj = {
-      path: '/' + x + '/about/',
+      path: '/about/',
       name: 'about',
       component: About
     }
     tmpArray.push(tmpObj)
+  } else {
+    for (let x in langList) {
+      var tmpObj = {
+        path: '/' + x + '/about/',
+        name: 'about',
+        component: About
+      }
+      tmpArray.push(tmpObj)
+    }
   }
   return tmpArray;
 }
