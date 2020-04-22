@@ -6,6 +6,10 @@ const Renderer = PrerenderSPAPlugin.PuppeteerRenderer
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const fs = require('fs')
 
+const { SitemapStream, streamToPromise } = require('sitemap');
+const siteMapUrls = [];
+const resolve = dir => path.join(__dirname, dir);
+
 let langs = []
 fs.readdirSync(path.join(__dirname, 'src/locales')).forEach(file => {
   langs.push(file.replace('.json', ''))
@@ -13,6 +17,7 @@ fs.readdirSync(path.join(__dirname, 'src/locales')).forEach(file => {
 
 const routes = ['/', '/about/', '/contact/']
 const langsPrerender = []
+const sitemapGenerate = []
 for (let index = 0; index < langs.length; index++) {
   let lang = langs[index];
   let langRoutes = Array.from(routes);
@@ -37,7 +42,8 @@ for (let index = 0; index < langs.length; index++) {
           let dir = 'dist'
           renderedRoute.outputPath = path.join(__dirname, dir, renderedRoute.route, 'index.html');
         }
-
+        console.log('renderedRoute')
+        console.log(renderedRoute)
         return renderedRoute;
       },
 
@@ -54,6 +60,70 @@ for (let index = 0; index < langs.length; index++) {
     })
   )
 }
+sitemapGenerate.push(
+  new PrerenderSPAPlugin({
+    staticDir: resolve('dist'),
+    routes,
+    postProcess (context) {
+      //content 參數
+      const { originalRoute, route, html } = context;
+      //全局獲取href內容正則
+      const reg = /(?<=<a\s*.*href=")[^"]*(?=")/g;
+      //過濾不包含http或https開頭的url
+      const urlList = html.match(reg).filter(url => url.startsWith('http'));
+      //將路由添加到全局sitemap容器
+      siteMapUrls.push(originalRoute);
+      //將html中的外鏈添加到全局sitemap容器
+      if (urlList.length) {
+        urlList.forEach(url => siteMapUrls.push(url));
+      }
+      //噹噹前路由為最後一個生成路由時
+      if (route === routes[routes.length - 1]) {
+        //去除重複的鏈接
+        let currentSiteMapUrls = Array.from(new Set(siteMapUrls));
+        //過濾掉鏈接中的錨點後內容
+        currentSiteMapUrls = currentSiteMapUrls.map(url => {
+          const isMao = url.indexOf('#') > -1;
+          //生成sitemap所需數據，具體參數參詳sitemap.js官網
+          return { url: isMao ? url.split('#')[0] : url, changefreq: 'weekly', priority: 0.6, lastmod: new Date().toLocaleDateString() }
+        });
+        console.log(currentSiteMapUrls)
+
+        const smStream = new SitemapStream({
+          hostname: 'http://www.mywebsite.com',
+          // xslUrl: "https://example.com/style.xsl",
+          lastmodDateOnly: false, // print date not time
+        })
+        // coalesce stream to value
+        // alternatively you can pipe to another stream
+
+        for (let index = 0; index < currentSiteMapUrls.length; index++) {
+          smStream.write(currentSiteMapUrls[index]);
+        }
+        smStream.end()
+
+        streamToPromise(smStream).then(function (xml) {
+          console.log(xml.toString())
+          fs.writeFileSync(resolve('dist/sitemap.xml'), xml.toString());
+        })
+        //生成siteMap文件
+      }
+      //返回當前contet對象
+
+      return context
+    },
+    renderer: new Renderer({
+      inject: {},
+      //在 main.js 中 document.dispatchEvent(new Event('render-event'))，兩者的事件名稱要對應上。
+      //render-event的作用就是在render-event事件執行後執行preRender
+      renderAfterDocumentEvent: 'render-event',
+      //puppeteer參數，標籤意思：完全信任在Chrome中打開的內容
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    })
+  })
+)
+
+
 
 module.exports = {
   mode: process.env.NODE_ENV,
@@ -121,19 +191,22 @@ module.exports = {
 }
 if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
-  module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
-    new HtmlWebpackPlugin({
-      title: 'PRODUCTION prerender-spa-plugin',
-      template: 'index.html',
-      filename: path.resolve(__dirname, 'dist/index.html'),
-      favicon: 'favicon.ico'
-    })
-  ]).concat(langsPrerender)
+  module.exports.plugins = (module.exports.plugins || [])
+    .concat([
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: '"production"'
+        }
+      }),
+      new HtmlWebpackPlugin({
+        title: 'PRODUCTION prerender-spa-plugin',
+        template: 'index.html',
+        filename: path.resolve(__dirname, 'dist/index.html'),
+        favicon: 'favicon.ico'
+      })
+    ])
+    // .concat(langsPrerender)
+    .concat(sitemapGenerate)
 
 } else {
   // NODE_ENV === 'development'
