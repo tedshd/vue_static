@@ -6,14 +6,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     url: '',
-    langD4: 'en',
+    // langD4: 'en',
     langList: {
       // ar: 'العربية',
       // bg: 'български език',
       // cs: 'čeština',
       // de: 'Deutsch',
       // el: 'ελληνικά',
-      // en: 'English',
+      en: 'English',
       // es: 'Español',
       // fa: 'فارسی',
       // fr: 'français',
@@ -37,7 +37,7 @@ export default new Vuex.Store({
       // tr: 'Türkçe',
       // vi: 'Tiếng Việt',
       // 'zh-CN': '简体中文',
-      // 'zh-TW': '繁體中文'
+      'zh-TW': '繁體中文'
     }
   }
 })

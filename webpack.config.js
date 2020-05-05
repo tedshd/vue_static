@@ -15,7 +15,8 @@ const sitemapGenerate = []
 // const resolve = dir => path.join(__dirname, dir);
 
 // get i18n lang
-let langs = []
+let langs = ['en', 'zh-TW']
+
 fs.readdirSync(path.join(__dirname, 'src/locales')).forEach(file => {
   langs.push(file.replace('.json', ''))
 })
@@ -91,6 +92,7 @@ sitemapGenerate.push(
         console.log(currentSitemapUrls)
 
         const smStream = new SitemapStream({
+          // TODO Modify it
           hostname: 'http://www.mywebsite.com',
           lastmodDateOnly: false, // print date not time
         })
