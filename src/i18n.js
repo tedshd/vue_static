@@ -17,64 +17,29 @@ function loadLocaleMessages () {
   return messages
 }
 
-function urlUpdateQuery (url, query) {
-  let u = ''
-  let q = ''
-  const obj = {}
-  if (url) {
-    u = new URL(url)
-  } else {
-    u = location
-  }
-  if (!query) {
-    console.error('urlUpdateQuery: query is not set')
-    return
-  }
-  if (typeof query !== 'object') {
-    console.error('urlUpdateQuery: query is not object')
-    return
-  }
-  if (u.search) {
-    var qArray = u.search.slice(1).split('&')
-    for (var i = 0; i < qArray.length; i++) {
-      var tmp = qArray[i].split('=')
-      obj[tmp[0]] = tmp[1]
+let langString = location.pathname.split('/')[1]
+
+// TODO check logic
+if (store.state.langD4) {
+  langString = store.state.langD4
+} else {
+  if (!store.state.langList[langString]) {
+    let langD4 = store.state.langD4
+    let lang = navigator.language
+    if (lang === 'zh-TW' ||
+      lang === 'zh-CN') {
+      langD4 = lang
+    } else {
+      lang = lang.split('-')[0]
     }
-  }
-  for (var x in query) {
-    obj[x] = query[x]
-  }
-  for (var y in obj) {
-    q = q + '&' + y + '=' + obj[y]
-  }
-  q = '?' + q.slice(1)
-  return u.protocol + '//' + u.host + u.pathname + q + u.hash
-}
-function getQueryString (name) {
-  name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]')
-  const regex = new RegExp('[\\?&]' + name + '=([^&#]*)')
-  const results = regex.exec(location.search)
-  return results == null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '))
-}
-
-const langString = getQueryString('hl')
-
-if (!store.state.langList[langString]) {
-  let langD4 = 'en'
-  let lang = navigator.language
-  if (lang === 'zh-TW' ||
-    lang === 'zh-CN') {
-    langD4 = lang
-  } else {
-    lang = lang.split('-')[0]
     if (store.state.langList[lang]) {
       langD4 = lang
+      location.href = '/' + langD4
     }
   }
-  location.href = urlUpdateQuery(location, {
-    hl: langD4
-  })
 }
+
+
 
 if (window['__PRERENDER_INJECTED__'] && window['__PRERENDER_INJECTED__'].lang) {
   Vue.config.lang = window['__PRERENDER_INJECTED__'].lang
@@ -86,7 +51,7 @@ const html = document.documentElement // returns the html tag
 html.setAttribute('lang', Vue.config.lang)
 
 export default new VueI18n({
-  locale: Vue.config.lang || 'en',
-  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  locale: Vue.config.lang,
+  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE,
   messages: loadLocaleMessages()
 })

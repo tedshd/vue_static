@@ -1,0 +1,17 @@
+:root {
+  --theme-bg-light: pink;
+  --theme-bg-dark: blue;
+  --theme-color-dark: #aaa;
+  --danger-theme: {
+    color: white;
+    background-color: red;
+  }
+}
+
+.error {
+  @apply --danger-theme;
+}
+
+.small {
+  font-size: 14px;
+}
