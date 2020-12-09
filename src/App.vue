@@ -17,46 +17,44 @@
 
 import store from './store';
 
-function hreflangInit(t) {
+function hreflangInit(locale, path) {
   var tmpArray = [];
   var xDefault = {
     rel: 'alternate',
     hreflang: 'x-default',
-    href: store.state.url + '/' + t.locale
+    href: store.state.url + path
   };
   tmpArray.push(xDefault);
   for (let x in store.state.langList) {
     var tmpObj = {
       rel: 'alternate',
       hreflang: x,
-      href: store.state.url + '/' + x
+      href: store.state.url + '/' + x + '/' + path.replace(path.match(/\/\w+\/?/), '')
     };
     tmpArray.push(tmpObj);
   }
-  console.log('tmpArray', tmpArray);
   return tmpArray
 }
 
-let links = function (t) {
+let links = function (locale, path) {
   let tmpLinks = [
     {
       'rel': 'canonical',
-      'href': store.state.url + '/' + t.locale
+      'href': store.state.url + path
     },
     {
       'rel': 'alternate',
       'media': 'only screen and (max-width: 640px)',
-      'href': store.state.url + '/' + t.locale
+      'href': store.state.url + path
     },
     {
       'rel': 'alternate',
       'media': 'handheld',
-      'href': store.state.url + '/' + t.locale
+      'href': store.state.url + path
     }
   ]
-  return tmpLinks.concat(hreflangInit(t))
+  return tmpLinks.concat(hreflangInit(locale, path))
 }
-
 
 export default {
   name: 'app',
@@ -74,7 +72,7 @@ export default {
         },
         {
           'property': 'og:url',
-          'content': store.state.url + '/' + this.$i18n.locale
+          'content': store.state.url + this.$route.path
         },
         {
           'property': 'og:image',
@@ -121,7 +119,7 @@ export default {
           'content': this.$i18n.t('description')
         }
       ],
-      link: links(this.$i18n)
+      link: links(this.$i18n.locale, this.$route.path)
     }
   },
   mounted() {

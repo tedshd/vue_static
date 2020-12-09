@@ -24,15 +24,16 @@ if (!window['__PRERENDER_INJECTED__']) {
     langString = store.state.langD4
   } else {
     if (!store.state.langList[langString]) {
-      let langD4 = store.state.langD4
-      let lang = navigator.language
-      if (lang === 'zh-TW' ||
-        lang === 'zh-CN') {
-        langD4 = lang
-      } else {
-        lang = lang.split('-')[0]
-      }
-      location.href = '/' + store.state.langList[lang]
+      langString = store.state.langD4 || navigator.language
+      // let langD4 = store.state.langD4
+      // let lang = navigator.language
+      // if (lang === 'zh-TW' ||
+      //   lang === 'zh-CN') {
+      //   langD4 = lang
+      // } else {
+      //   lang = lang.split('-')[0]
+      // }
+      location.href = '/' + langString
     }
   }
 }
