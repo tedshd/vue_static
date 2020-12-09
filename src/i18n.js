@@ -19,26 +19,23 @@ function loadLocaleMessages () {
 
 let langString = location.pathname.split('/')[1]
 
-// TODO check logic
-if (store.state.langD4) {
-  langString = store.state.langD4
-} else {
-  if (!store.state.langList[langString]) {
-    let langD4 = store.state.langD4
-    let lang = navigator.language
-    if (lang === 'zh-TW' ||
-      lang === 'zh-CN') {
-      langD4 = lang
-    } else {
-      lang = lang.split('-')[0]
-    }
-    if (store.state.langList[lang]) {
-      langD4 = lang
-      location.href = '/' + langD4
+if (!window['__PRERENDER_INJECTED__']) {
+  if (store.state.langD4) {
+    langString = store.state.langD4
+  } else {
+    if (!store.state.langList[langString]) {
+      let langD4 = store.state.langD4
+      let lang = navigator.language
+      if (lang === 'zh-TW' ||
+        lang === 'zh-CN') {
+        langD4 = lang
+      } else {
+        lang = lang.split('-')[0]
+      }
+      location.href = '/' + store.state.langList[lang]
     }
   }
 }
-
 
 
 if (window['__PRERENDER_INJECTED__'] && window['__PRERENDER_INJECTED__'].lang) {

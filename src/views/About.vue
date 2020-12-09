@@ -99,7 +99,7 @@ export default {
         },
         {
           'name': 'twitter:description',
-          'content': this.$i18n.t('description')
+          'content': 'ABOUT page desc'
         },
         {
           'name': 'twitter:image',
@@ -107,11 +107,11 @@ export default {
         },
         {
           'property': 'og:description',
-          'content': this.$i18n.t('description')
+          'content': 'ABOUT page desc'
         },
         {
           'name': 'description',
-          'content': this.$i18n.t('description')
+          'content': 'ABOUT page desc'
         }
       ],
       link: links(this.$i18n)

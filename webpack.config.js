@@ -2,59 +2,57 @@ const path = require('path')
 const fs = require('fs')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const PrerenderSPAPlugin = require('prerender-spa-plugin')
 const Renderer = PrerenderSPAPlugin.PuppeteerRenderer
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const { SitemapStream, streamToPromise } = require('sitemap')
 
-const hostUrl = ''
 const routes = ['/', '/about/', '/contact/']
+const host = 'https://www.example.com'
+const releaseDir = 'dist'
+const langs = ['en', 'zh-TW']
+// const langs = ['en']
 
-const sitemapUrls = []
-const sitemapGenerate = []
-// const resolve = dir => path.join(__dirname, dir);
+let sitemapUrls = []
 
-// get i18n lang
-let langs = ['en', 'zh-TW']
-
-fs.readdirSync(path.join(__dirname, 'src/locales')).forEach(file => {
-  langs.push(file.replace('.json', ''))
-})
 
 // generate i18n router for i18n page
 const langsPrerender = []
 
-for (let index = 0; index < langs.length; index++) {
-  let lang = langs[index]
-  let langRoutes = Array.from(routes)
+// check generate i18n or single lang page
+if (langs.length > 1) {
+  for (let index = 0; index < langs.length; index++) {
+    let lang = langs[index]
+    let langRoutes = Array.from(routes)
 
-  for (let x = 0; x < langRoutes.length; x++) {
-    langRoutes[x] = '/' + lang + langRoutes[x]
+    // rebuild routes
+    for (let x = 0; x < langRoutes.length; x++) {
+      langRoutes[x] = '/' + lang + langRoutes[x]
+    }
+    // first lang is d4 lang
+    if (index === 0) {
+      langsPrerenderUpdate(lang, routes)
+    }
+    langsPrerenderUpdate(lang, langRoutes)
   }
-
-  langsPrerenderUpdate(lang, langRoutes)
+} else {
+  langsPrerenderUpdate(langs[0], routes)
 }
 
 function langsPrerenderUpdate (lang, langRoutes) {
   langsPrerender.push(
 
     new PrerenderSPAPlugin({
-      staticDir: path.join(__dirname, 'dist'),
+      staticDir: path.join(__dirname, releaseDir),
       routes: langRoutes,
       postProcess (renderedRoute) {
-        console.log('build router:', renderedRoute);
         if (renderedRoute.route === '/') {
-          // const fileName = lang ? `${lang}.html` : `index.html`;
-          let dir = 'dist'
-          renderedRoute.outputPath = path.join(__dirname, dir, 'index.html');
+          renderedRoute.outputPath = path.join(__dirname, releaseDir, 'index.html');
         } else {
-          // const fileName = lang
-          //   ? `${renderedRoute.route}.${lang}.html`
-          //   : `${renderedRoute.route}.html`;
-          let dir = 'dist'
-          renderedRoute.outputPath = path.join(__dirname, dir, renderedRoute.route, 'index.html');
+          renderedRoute.outputPath = path.join(__dirname, releaseDir, renderedRoute.route, 'index.html');
         }
-        console.log('renderedRoute')
+        // console.log('renderedRoute')
         console.log(renderedRoute)
         return renderedRoute;
       },
@@ -71,62 +69,62 @@ function langsPrerenderUpdate (lang, langRoutes) {
     })
   )
 }
-sitemapGenerate.push(
-  new PrerenderSPAPlugin({
-    staticDir: path.join(__dirname, 'dist'),
-    routes,
-    postProcess (context) {
-      const { originalRoute, route, html } = context;
-      const reg = /(?<=<a\s*.*href=")[^"]*(?=")/g;
-      const urlList = html.match(reg).filter(url => url.startsWith('http'));
-      sitemapUrls.push(originalRoute);
-      if (urlList.length) {
-        urlList.forEach(url => sitemapUrls.push(url));
+
+function sitemapGenerate () {
+  for (let index = 0; index < routes.length; index++) {
+    sitemapUrls.push(host + routes[index]);
+  }
+  sitemapUrls = sitemapUrls.map(url => {
+    const isMao = url.indexOf('#') > -1;
+    var xmlData = {
+      url: isMao ? url.split('#')[0] : url,
+      changefreq: 'weekly',
+      priority: 0.5,
+      lastmod: new Date().toLocaleDateString()
+    };
+    if (langs.length > 1) {
+      xmlData['links'] = [];
+      for (let i = 0; i < langs.length; i++) {
+        var tmpObj = {
+          lang: langs[i],
+          url: host + '/' + langs[i] + url.replace(host, '')
+        };
+        xmlData['links'].push(tmpObj);
       }
-      if (route === routes[routes.length - 1]) {
-        let currentSitemapUrls = Array.from(new Set(sitemapUrls));
-        currentSitemapUrls = currentSitemapUrls.map(url => {
-          const isMao = url.indexOf('#') > -1;
-          return { url: isMao ? url.split('#')[0] : url, changefreq: 'weekly', priority: 0.1, lastmod: new Date().toLocaleDateString() }
-        });
-        console.log(currentSitemapUrls)
+    }
+    return xmlData
+  });
 
-        const smStream = new SitemapStream({
-          // TODO Modify it
-          hostname: 'http://www.mywebsite.com',
-          lastmodDateOnly: false, // print date not time
-        })
-
-        for (let index = 0; index < currentSitemapUrls.length; index++) {
-          smStream.write(currentSitemapUrls[index]);
-        }
-        smStream.end()
-
-        streamToPromise(smStream).then(function (xml) {
-          console.log(xml.toString())
-          fs.writeFileSync(path.join(__dirname, 'dist/sitemap.xml'), xml.toString());
-        })
-      }
-      return context
-    },
-    renderer: new Renderer({
-      inject: {},
-      //在 main.js 中 document.dispatchEvent(new Event('render-event'))，兩者的事件名稱要對應上。
-      //render-event的作用就是在render-event事件執行後執行preRender
-      renderAfterDocumentEvent: 'render-event',
-      //puppeteer參數，標籤意思：完全信任在Chrome中打開的內容
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    })
+  const smStream = new SitemapStream({
+    hostname: host,
+    lastmodDateOnly: false, // print date not time
+    xmlns: { // trim the xml namespace
+      news: false, // flip to false to omit the xml namespace for news
+      xhtml: true,
+      image: false,
+      video: false,
+    }
   })
-)
 
+  for (let index = 0; index < sitemapUrls.length; index++) {
+    smStream.write(sitemapUrls[index]);
+  }
+  smStream.end()
 
+  streamToPromise(smStream).then(function (xml) {
+    // console.log(xml.toString())
+    if (!fs.existsSync(path.join(__dirname, releaseDir))) {
+      fs.mkdirSync(path.join(__dirname, releaseDir));
+    }
+    fs.writeFileSync(path.join(__dirname, releaseDir, '/sitemap.xml'), xml.toString());
+  })
+}
 
 module.exports = {
   mode: process.env.NODE_ENV,
   entry: './src/main.js',
   output: {
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, releaseDir),
     publicPath: '/',
     filename: 'build.js'
   },
@@ -205,10 +203,36 @@ if (process.env.NODE_ENV === 'production') {
         template: 'index.html',
         filename: path.resolve(__dirname, 'dist/index.html'),
         favicon: 'favicon.ico'
-      })
+      }),
+      new CopyPlugin([
+        {
+          from: 'src/assets',
+          to: './'
+        },
+        {
+          from: '*.jpg',
+          to: './'
+        },
+        {
+          from: '*.png',
+          to: './'
+        },
+        {
+          from: '*.icon',
+          to: './'
+        },
+        {
+          from: '*.ico',
+          to: './'
+        },
+        {
+          from: '*.svg',
+          to: './'
+        },
+      ])
     ])
     .concat(langsPrerender)
-    .concat(sitemapGenerate)
+  sitemapGenerate()
 
 } else {
   // NODE_ENV === 'development'

@@ -15,14 +15,7 @@ console.log(langList);
 
 function urlHome () {
   var tmpArray = []
-  if (!Object.keys(langList).length) {
-    var tmpObj = {
-      path: '/',
-      name: 'home',
-      component: Home
-    }
-    tmpArray.push(tmpObj)
-  } else {
+  if (langList && Object.keys(langList).length) {
     for (let x in langList) {
       var tmpObj = {
         path: '/' + x + '/',
@@ -32,19 +25,18 @@ function urlHome () {
       tmpArray.push(tmpObj)
     }
   }
+  var tmpObj = {
+    path: '/',
+    name: 'home',
+    component: Home
+  }
+  tmpArray.push(tmpObj)
   return tmpArray;
 }
 
 function urlAbout () {
   var tmpArray = []
-  if (!Object.keys(langList).length) {
-    var tmpObj = {
-      path: '/about/',
-      name: 'about',
-      component: About
-    }
-    tmpArray.push(tmpObj)
-  } else {
+  if (langList && Object.keys(langList).length) {
     for (let x in langList) {
       var tmpObj = {
         path: '/' + x + '/about/',
@@ -54,6 +46,12 @@ function urlAbout () {
       tmpArray.push(tmpObj)
     }
   }
+  var tmpObj = {
+    path: '/about/',
+    name: 'about',
+    component: About
+  }
+  tmpArray.push(tmpObj)
   return tmpArray;
 }
 
