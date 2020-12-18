@@ -1,5 +1,9 @@
 {
   "message": "哈樓 i18n !!",
-  "title": "標題",
-  "description": "描述啦"
+  "title": "d4 title",
+  "home_title": "標題",
+  "about_title": "about a 標題拉",
+  "description": "描述啦",
+  "home_description": "轟描述啦",
+  "about_description": "關於描述啦"
 }

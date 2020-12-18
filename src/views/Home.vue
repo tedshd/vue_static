@@ -5,6 +5,7 @@
   </div>
 </template>
 <script>
+import store from "./../store";
 import style from './../style/home.css'
 
 export default {

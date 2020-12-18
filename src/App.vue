@@ -29,7 +29,7 @@ function hreflangInit(locale, path) {
     var tmpObj = {
       rel: 'alternate',
       hreflang: x,
-      href: store.state.url + '/' + x + '/' + path.replace(path.match(/\/\w+\/?/), '')
+      href: store.state.url + '/' + x + '/' + path.replace(path.match(/\/\w+[-]+\w+\/?|\/\w+\/?/), '')
     };
     tmpArray.push(tmpObj);
   }
@@ -60,7 +60,7 @@ export default {
   name: 'app',
   metaInfo() {
     return {
-      title: this.$i18n.t('title'), // set a title
+      title: this.$i18n.t(this.$route.name + '_title'), // set a title
       meta: [
         {
           'http-equiv': 'content-language',
@@ -68,7 +68,7 @@ export default {
         },
         {
           'property': 'og:title',
-          'content': this.$i18n.t('title')
+          'content': this.$i18n.t(this.$route.name + '_title')
         },
         {
           'property': 'og:url',
@@ -100,11 +100,11 @@ export default {
         },
         {
           'name': 'twitter:title',
-          'content': this.$i18n.t('title')
+          'content': this.$i18n.t(this.$route.name + '_title')
         },
         {
           'name': 'twitter:description',
-          'content': this.$i18n.t('description')
+          'content': this.$i18n.t(this.$route.name + '_description')
         },
         {
           'name': 'twitter:image',
@@ -112,11 +112,11 @@ export default {
         },
         {
           'property': 'og:description',
-          'content': this.$i18n.t('description')
+          'content': this.$i18n.t(this.$route.name + '_description')
         },
         {
           'name': 'description',
-          'content': this.$i18n.t('description')
+          'content': this.$i18n.t(this.$route.name + '_description')
         }
       ],
       link: links(this.$i18n.locale, this.$route.path)
